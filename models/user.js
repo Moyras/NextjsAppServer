@@ -33,8 +33,10 @@ const userSchema = new Schema(
       data: String,
       default: "",
     },
-
-    stripe__account_id: "",
+    stripe_account_id: {
+      type: String,
+      default: "",
+    },
     stripe_seller: {},
     stripeSession: {},
   },

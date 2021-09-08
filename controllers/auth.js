@@ -64,7 +64,7 @@ export const login = async (req, res) => {
 
     const match = await comparePassword(password, user.password);
 
-    if (!match) return res.status(401).json({ msg: "password is incorrect" });
+    if (!match) return res.status(500).json({ msg: "password is incorrect" });
     // create JWT
     const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
