@@ -1,4 +1,5 @@
 import User from "../models/user";
+import Course from "../models/course";
 import QueryString from "query-string";
 
 // Stripe configuration
@@ -63,7 +64,7 @@ export const getAccountStatus = async (req, res) => {
 export const currentInstructor = async (req, res) => {
   try {
     let user = await User.findById(req.user._id).select("-password").exec();
-    console.log(user);
+
     if (!user.role.includes("Instructor")) {
       return res.sendStatus(403);
     } else {
@@ -71,5 +72,17 @@ export const currentInstructor = async (req, res) => {
     }
   } catch (err) {
     console.log(err);
+  }
+};
+
+export const instructorCourses = async (req, res) => {
+  try {
+    const courses = await Course.find({ instructor: req.user._id })
+      .sort({ createdAt: -1 })
+      .exec();
+    return res.status(200).json(courses);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ err });
   }
 };

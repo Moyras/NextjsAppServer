@@ -19,7 +19,7 @@ const lessonSchema = new Schema(
       type: {},
       minlength: 200,
     },
-    video_link: {},
+    video: {},
     free_preview: {
       type: Boolean,
       default: false,
@@ -58,7 +58,7 @@ const courseSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    padi: {
+    paid: {
       type: Boolean,
       default: true,
     },
