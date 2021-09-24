@@ -74,7 +74,7 @@ export const removeImage = async (req, res) => {
 
 export const createCourse = async (req, res) => {
   try {
-    const { name: title, description, price, image, category, paid } = req.body;
+    const { title, description, price, image, category, paid } = req.body;
     const instructor = req.user._id;
     const alreadyExist = await Course.findOne({
       slug: slugify(title.toLowerCase()),
@@ -192,5 +192,98 @@ export const addLesson = async (req, res) => {
   } catch (err) {
     console.log(err);
     return res.status(400).json({ err });
+  }
+};
+
+export const updateCourse = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const data = req.body;
+    const course = await Course.findOne({ slug }).exec();
+
+    if (req.user._id != course.instructor) {
+      return res.status(400).json({ msg: "Unauthorized" });
+    }
+
+    const updated = await Course.findOneAndUpdate({ slug }, data, {
+      new: true,
+    }).exec();
+
+    return res.status(200).json(updated);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err });
+  }
+};
+
+export const removeImagedb = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const course = await Course.findOne({ slug }).exec();
+
+    if (req.user._id != course.instructor) {
+      return res.status(400).json({ msg: "Unauthorized" });
+    }
+
+    const updated = await Course.findOneAndUpdate(
+      { slug },
+      { image: {} },
+      {
+        new: true,
+      }
+    ).exec();
+
+    return res.status(200).json(updated);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err });
+  }
+};
+
+export const removeLesson = async (req, res) => {
+  try {
+    const { slug, lessonId } = req.params;
+    const course = await Course.findOne({ slug }).exec();
+
+    if (req.user._id != course.instructor) {
+      return res.status(400).json({ msg: "Unauthorized" });
+    }
+
+    const updatedcourse = await Course.findByIdAndUpdate(course._id, {
+      $pull: { lessons: { _id: lessonId } },
+    }).exec();
+
+    res.status(200).json({ msg: "lesson removed" });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ msg: err });
+  }
+};
+
+export const updateLesson = async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const { _id, title, content, video, free_preview } = req.body;
+    const course = await Course.findOne({ slug }).select("instructor").exec();
+
+    if (course.instructor._id != req.user._id) {
+      return res.status(400).json({ msg: "Unauthorized" });
+    }
+    const updated = await Course.updateOne(
+      { "lessons._id": _id },
+      {
+        $set: {
+          "lessons.$.title": title,
+          "lessons.$.content": content,
+          "lessons.$.video": video,
+          "lessons.$.free_preview": free_preview,
+        },
+      },
+      { new: true }
+    ).exec();
+    res.status(200)json({ ok: true });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ msg: "Backend error" });
   }
 };
