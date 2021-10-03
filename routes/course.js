@@ -49,7 +49,7 @@ router.get("/course/:slug", readCourse);
 router.post(
   "/course/video-upload/:instructorId",
   requireSignin,
-  formidable(),
+  formidable({ maxFieldsSize: 500 * 1024 * 1024 }),
   uploadVideo
 );
 router.post("/course/video-remove/:instructorId", requireSignin, removeVideo);
