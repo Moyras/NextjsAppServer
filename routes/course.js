@@ -5,7 +5,7 @@ const router = express.Router();
 
 // middlewares
 
-import { isInstructor, requireSignin } from "../middlewares";
+import { isInstructor, requireSignin, isEnrolled } from "../middlewares";
 
 //controllers
 import {
@@ -20,7 +20,21 @@ import {
   removeImagedb,
   removeLesson,
   updateLesson,
+  publishCourse,
+  unpublishCourse,
+  courses,
+  chechEnrollment,
+  freeEnrollment,
+  paidEnrollment,
+  stripeSuccess,
+  userCourses,
+  readFullCourse,
+  markCompleted,
+  markIncompleted,
+  listCompleted,
 } from "../controllers/course";
+
+router.get("/courses", courses);
 
 // image
 router.post("/course/upload-image", uploadImage);
@@ -41,5 +55,34 @@ router.post(
 router.post("/course/video-remove/:instructorId", requireSignin, removeVideo);
 router.post("/course/lesson/:slug/:instructorId", requireSignin, addLesson);
 router.put("/course/lesson/:slug/:instructorId", requireSignin, updateLesson);
-router.put("/course/:slug/:lessonId", requireSignin, removeLesson);
+router.put(
+  "/course/lesson-remove/:slug/:lessonId",
+  requireSignin,
+  removeLesson
+);
+
+// publish or unpublish
+
+router.put("/course/publish/:courseId", requireSignin, publishCourse);
+router.put("/course/unpublish/:courseId", requireSignin, unpublishCourse);
+
+router.get("/check-enrollment/:courseId", requireSignin, chechEnrollment);
+
+// enrolment
+
+router.post("/free-enrollment/:courseId", requireSignin, freeEnrollment);
+router.post("/paid-enrollment/:courseId", requireSignin, paidEnrollment);
+router.get("/stripe-success/:courseId", requireSignin, stripeSuccess);
+
+// user courses
+router.get("/user-courses", requireSignin, userCourses);
+router.get("/user/course/:slug", requireSignin, isEnrolled, readFullCourse);
+
+// mark completed
+
+router.post("/mark-completed", requireSignin, markCompleted);
+router.post("/mark-incompleted", requireSignin, markIncompleted);
+
+router.post("/list-completed", requireSignin, listCompleted);
+
 module.exports = router;

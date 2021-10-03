@@ -86,3 +86,43 @@ export const instructorCourses = async (req, res) => {
     return res.status(500).json({ err });
   }
 };
+
+export const studentCount = async (req, res) => {
+  try {
+    const users = await User.find({ courses: req.body.courseId })
+      .select("_id")
+      .exec();
+    res.status(200).json(users);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+};
+
+export const instructorBalance = async (req, res) => {
+  try {
+    let user = await User.findById(req.user._id).exec();
+    const balance = await stripe.balance.retrieve({
+      stripeAccount: user.stripe_account_id,
+    });
+    res.status(200).json(balance);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+};
+
+export const instructorPayoutSettings = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).exec();
+    const loginLink = await stripe.accounts.createLoginLink(
+      user.stripe_seller.id,
+      { redirect_url: process.env.STRIPE_SETTINGS_REDIRECT }
+    );
+
+    res.status(200).json(loginLink.url);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+};

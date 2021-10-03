@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 const { Schema } = mongoose;
+const { ObjectId } = Schema;
 
 const userSchema = new Schema(
   {
@@ -39,6 +40,7 @@ const userSchema = new Schema(
     },
     stripe_seller: {},
     stripeSession: {},
+    courses: [{ type: ObjectId, ref: "Course" }],
   },
   { timestramps: true }
 );
